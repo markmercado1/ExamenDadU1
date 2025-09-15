@@ -1,0 +1,34 @@
+server:
+  port: 9090
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8091/eureka
+  instance:
+    hostname: localhost
+
+spring:
+  application:
+    name: ms-gateway-server
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            - id: ms-empleo
+              uri: lb://ms-empleo
+              predicates:
+                - Path=/empleos/**
+            - id: ms-persona
+              uri: lb://ms-persona
+              predicates:
+                - Path=/personas/**
+              # Si tu servicio real no expone /categoria/...:
+              # filters:
+              #   - StripPrefix=1
