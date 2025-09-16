@@ -25,10 +25,10 @@ spring:
               uri: lb://ms-empleo
               predicates:
                 - Path=/empleos/**
-            - id: ms-persona
-              uri: lb://ms-persona
+            - id: ms-curso
+              uri: lb://ms-curso
               predicates:
-                - Path=/personas/**
+                - Path=/cursos/**
               # Si tu servicio real no expone /categoria/...:
               # filters:
               #   - StripPrefix=1
