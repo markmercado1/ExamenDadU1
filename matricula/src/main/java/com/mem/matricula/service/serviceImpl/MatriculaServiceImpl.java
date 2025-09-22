@@ -4,6 +4,7 @@ import com.mem.matricula.dto.CursoDto;
 import com.mem.matricula.dto.DetalleMatriculaDTO;
 import com.mem.matricula.dto.MatriculaDTO;
 import com.mem.matricula.feign.CursoFeign;
+import com.mem.matricula.mappers.MatriculaMapper;
 import com.mem.matricula.models.DetalleMatricula;
 import com.mem.matricula.models.Matricula;
 import com.mem.matricula.repository.DetalleMatriculaRepository;
@@ -21,12 +22,14 @@ public class MatriculaServiceImpl implements MatriculaService {
     private final MatriculaRepository matriculaRepository;
     private final DetalleMatriculaRepository detalleMatriculaRepository;
     private final CursoFeign cursoFeign;
+    private final MatriculaMapper matriculaMapper;
 
     @Autowired
-    public MatriculaServiceImpl(MatriculaRepository matriculaRepository, DetalleMatriculaRepository detalleMatriculaRepository, CursoFeign cursoFeign) {
+    public MatriculaServiceImpl(MatriculaRepository matriculaRepository, DetalleMatriculaRepository detalleMatriculaRepository, CursoFeign cursoFeign, MatriculaMapper matriculaMapper) {
         this.matriculaRepository = matriculaRepository;
         this.detalleMatriculaRepository = detalleMatriculaRepository;
         this.cursoFeign = cursoFeign;
+        this.matriculaMapper = matriculaMapper;
     }
 
     @Override
@@ -52,33 +55,25 @@ public class MatriculaServiceImpl implements MatriculaService {
     @Override
     public MatriculaDTO findById(Long id) {
         Matricula matricula = matriculaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Matrícula con id " + id + " no encontrada"));
+                .orElseThrow(() -> new RuntimeException("Matrícula con id " + id + " no encontrada"));;
 
-        // Obtener los detalles asociados
         List<DetalleMatricula> detalles = detalleMatriculaRepository.findByMatriculaIdMatricula(id);
 
-        // Convertir a DTO con los datos del curso desde Feign
         List<DetalleMatriculaDTO> detallesDTO = detalles.stream().map(det -> {
-            DetalleMatriculaDTO dto = new DetalleMatriculaDTO();
-            dto.setIdDetalleMatricula(det.getIdDetalleMatricula());
-            dto.setIdMatricula(det.getMatricula().getIdMatricula());
-            dto.setIdCurso(det.getIdCurso());
+            DetalleMatriculaDTO dto = matriculaMapper.toDto(det);
 
-            // 🔹 Llamada al ms-curso
             CursoDto curso = cursoFeign.buscarPorId(det.getIdCurso()).getBody();
             dto.setCurso(curso);
 
             return dto;
         }).toList();
 
-        // Retornar un DTO general
-        return MatriculaDTO.builder()
-                .idMatricula(matricula.getIdMatricula())
-                .nombreAlumno(matricula.getNombreAlumno())
-                .numeroMatricula(matricula.getNumeroMatricula())
-                .detalles(detallesDTO)
-                .build();
+        MatriculaDTO dto = matriculaMapper.toDto(matricula);
+        dto.setDetalles(detallesDTO);
+
+        return dto;
     }
+
 
     @Override
     public List<Matricula> findAll() {

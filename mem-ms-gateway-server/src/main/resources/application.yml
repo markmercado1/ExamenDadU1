@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ms-gateway-service
+    name: cmm-ms-gateway-server
   profiles:
     active: development
   config:

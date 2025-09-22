@@ -36,8 +36,8 @@ public class CursoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Curso> buscarPorId(@PathVariable Long id) {
-        Curso persona = cursoService.buscarPorId(id);
-        return ResponseEntity.ok(persona);
+        Curso curso = cursoService.buscarPorId(id);
+        return ResponseEntity.ok(curso);
     }
     @DeleteMapping("/{id}")
     public String deleteById(@PathVariable(required = true) Long id){
