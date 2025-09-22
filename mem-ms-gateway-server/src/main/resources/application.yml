@@ -1,8 +1,8 @@
 spring:
   application:
-    name: cmm-ms-gateway-server
+    name: ms-gateway-service
   profiles:
     active: development
   config:
-    import: optional:configserver:http://root:123456@localhost:7073
+    import: optional:configserver:http://root:123456@localhost:7075
 
